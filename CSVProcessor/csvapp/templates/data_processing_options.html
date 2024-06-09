@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Processing Options</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            width: 90%;
+            max-width: 1200px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .options, .plots {
+            flex: 1;
+            padding: 20px;
+        }
+        .options {
+            background-color: #f0f4f8;
+        }
+        .plots {
+            border-left: 1px solid #ddd;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        form div {
+            margin-bottom: 10px;
+        }
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: center;
+            width: 100px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        img.plot {
+            width: 100%;
+            height: auto;
+            margin-top: 20px;
+        }
+        .messages p {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="options">
+            <h2>Data Processing Options</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div>
+                    <label>
+                        <input type="checkbox" name="tasks" value="display_first_10_rows"> Display First 10 Rows
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input type="checkbox" name="tasks" value="calculate_mean_median_std"> Calculate Mean, Median, Standard Deviation
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input type="checkbox" name="tasks" value="display_heatmap"> Display Heatmap
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input type="checkbox" name="tasks" value="identify_missing_data"> Identify Missing Data
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input type="checkbox" name="tasks" value="handle_missing_data"> Handle Missing Data
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input type="checkbox" name="tasks" value="generate_histograms"> Generate Histograms
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input type="checkbox" name="tasks" value="generate_scatter_plot_matrix"> Generate Scatter Plot Matrix
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        <input type="checkbox" name="tasks" value="generate_violin_plot"> Generate Violin Plot
+                    </label>
+                </div>
+                <button type="submit">Process</button>
+            </form>
+        </div>
+        <div class="plots">
+            <h2>Plots</h2>
+            <div class="messages">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% if first_10_rows %}
+            <table>
+                <thead>
+                    <tr>
+                        {% for col in first_10_rows.0.keys %}
+                            <th>{{ col }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in first_10_rows %}
+                        <tr>
+                            {% for col in row.values %}
+                                <td>{{ col }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            {% if mean_median_std %}
+            <h3>Mean, Median, and Standard Deviation</h3>
+            <table>
+                <thead>
+                    <tr>
+                       <th>Column Name</th>
+                       <th>Mean</th>
+                       <th>Median</th>
+                       <th>Standard Deviation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for column, values in mean_median_std.items %}
+                        <tr>
+                           <td>{{ column }}</td>
+                           <td>{{ values.mean }}</td>
+                           <td>{{ values.median }}</td>
+                           <td>{{ values.std }}</td>
+                       </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            {% if heatmap %}
+                <h3>Heatmap</h3>
+                <img src="data:image/png;base64,{{ heatmap }}" alt="Heatmap" class="plot">
+            {% endif %}
+            {% if missing_data_info %}
+                <h3>Missing Data Info</h3>
+                <pre>{{ missing_data_info }}</pre>
+            {% endif %}
+            {% if histograms %}
+                <h3>Histograms</h3>
+                <img src="data:image/png;base64,{{ histograms }}" alt="Histograms" class="plot">
+            {% endif %}
+            {% if scatter_plot_matrix %}
+                <h3>Scatter Plot Matrix</h3>
+                <img src="data:image/png;base64,{{ scatter_plot_matrix }}" alt="Scatter Plot Matrix" class="plot">
+            {% endif %}
+            {% if violin_plot %}
+                <h3>Violin Plot</h3>
+                <img src="data:image/png;base64,{{ violin_plot }}" alt="Violin Plot" class="plot">
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
