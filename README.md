@@ -60,5 +60,6 @@ CSVProcessor is designed to help users:
   # A note to make , perform the operations one by one and not all together. Thank you  
 
 Example snapshots are in the folder named "snapshots"
+Sample CSV File is provided in the "sample CSV" folder .
 
    
